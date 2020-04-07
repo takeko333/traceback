@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=yes, maximum-scale=1.0, minimum-scale=1.0">
+	<meta name="description" content="" />
+	<meta name="keywords" content="Python,プログラミング,画像処理,Pillow,PIL,ImageOps" />
+	<meta property="og:url" content="http://traceback.html.xdomain.jp/article/PIL_ImageOps.html" />
+	<meta property="og:image" content="http://traceback.html.xdomain.jp/images/imgMain.jpg" />
+	<meta property="og:type" content="article" />
+	<title>[Python] ImageOpsモジュールを用いた画像処理 | Traceback</title>
+	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<link rel="stylesheet" type="text/css" media="all" href="../style.css">
+	<link href="../prettify.css" type="text/css" rel="stylesheet">
+	<style type="text/css">
+	</style>
+	<!--[if lt IE 9]>
+	<script src="js/html5.js"></script>
+	<script src="js/css3-mediaqueries.js"></script>
+	<![endif]-->
+	<script type="text/javascript" src="../js/prettify.js"></script>
+	<script src="../js/jquery1.4.4.min.js"></script>
+	<script src="../js/script.js"></script>
+</head>
+
+<body onload="prettyPrint()">
+
+	<nav id="mainNav">
+		<div class="inner">
+			<div style="margin:2px;padding:10px;background-color:#444;border:1px solid black;">
+				<a href="../index.html"><font color="#FFF" style="margin-left:2%;font-size:35px;">Traceback</font></a>
+			</div>
+		</div>
+	</nav>
+
+	<div id="wrapper">
+		<section id="main">
+			<a href="../index.html" style="margin-left:3%;">HOME</a> &raquo; 画像処理<br>
+			<section id="post-250" class="content">
+				<article class="post">
+					<section class="content">
+						<b style="margin-left:3%;font-size:20px;">ImageOpsモジュールを用いた画像処理</b>
+						<article class="post">
+              <div style="margin-left:3%;margin-right:3%;">
+								<p><b style="color:red;">ImageOpsモジュール</b>には、既製の画像処理操作が多数用意されています。</p>
+								<p>これを用いることで対象の画像に対して容易に処理を施すことができます。</p>
+								<p><b style="color:red;">ImageOps</b>モジュールで利用可能な関数の候補を以下に示します。</p><br>
+								<div align="center">
+									<table style="table-layout:fixed;border:2px solid #6091d3;" width="60%">
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#autocontrast">・autocontrast()</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#flip">・flip()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#colorize">・colorize()</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#grayscale">・grayscale()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#crop">・crop()</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#invert">・invert()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#deform">・deform()</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#mirror">・mirror()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#equalize">・equalize()</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#posterize">・posterize()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#expand">・expand()</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#solarize">・solarize()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#fit">・fit()</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;</b></td>
+										</tr>
+	          			</table>
+								</div><br><br>
+								<p>※L画像およびRGB画像に対してのみ操作が可能です。</p>
+								<p><b style="color:red;">ImageOpsモジュール</b>において利用可能な操作の実装例を以下にそれぞれ示します。</p>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="autocontrast"><b>autocontrast()&emsp;-&emsp;コントラストの最大化</b></h2>
+								<p>この関数は、入力画像のヒストグラムを計算し、ヒストグラムから最も明るい画素と最も暗い画素のカットオフ率を取り除き、最も暗い画素が黒（0）になり、最も明るい画素が白（255）になるように画像を再マッピングします。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・cutoff</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - ヒストグラムから切り捨てるパーセント数</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・ignore</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 背景ピクセル値(背景なしの場合はNoneを使用)</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+        cutoff = 0
+        ignore = None
+
+        image = ImageOps.autocontrast(image, cutoff=cutoff, ignore=ignore)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_autocontrast.jpg" width="" alt="autocontrast()" title="autocontrast()"></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="colorize"><b>colorize()&emsp;-&emsp;グレースケール画像のカラー化</b></h2>
+								<p>黒と白の引数はRGBタプルでなければなりません。この関数は、ソース画像のすべての黒のピクセルを第1の色にマッピングし、すべての白のピクセルを第2の色にマッピングするカラーウェッジを計算します。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・black</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 元画像の黒の部分に置き換える色</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・white</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 元画像の白の部分に置き換える色</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("imagejpg").convert("L")
+        black = (255,0,0)
+        white = (0,255,0)
+
+        image = ImageOps.colorize(image, black, white)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/gray.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_colorize.jpg" width="" alt="colorize()" title="colorize()"></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="crop"><b>crop()&emsp;-&emsp;枠線の削除</b></h2>
+								<p>同じ量のピクセルが4辺すべてから削除されます。この機能はすべての画像モードで機能します。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・border</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 削減するピクセル数</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+        border = 1
+
+        image = ImageOps.crop(image, border=border)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前(256x256)</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(254x254)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_crop_border_1.jpg" width="" alt="crop()_border_1" title="crop()_border_1"></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="deform"><b>deform()&emsp;-&emsp;変形</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・deformer</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - getmeshメソッドを実装するオブジェクトはすべて使用できます。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・resample</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 使用するリサンプリングフィルタ</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    class Deformer(object):
+        def getmesh(self,image):
+            (w, h) = image.size
+            return [((0, 0, w//2, h//2), (0, 0, 0, h, w, h, w, 0)),
+                    ((w//2, 0, w, h//2), (0, 0, 0, h, w, h, w, 0)),
+                    ((0, h//2, w//2, h), (0, 0, 0, h, w, h, w, 0)),
+                    ((w//2, h//2, w, h), (0, 0, 0, h, w, h, w, 0))]
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+        deformer = Deformer()
+        resample = 2
+
+        image = ImageOps.deform(image,deformer=deformer,resample=resample)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_deform.jpg" width="" alt="" title=""></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="equalize"><b>equalize()&emsp;-&emsp;ヒストグラムの均等化</b></h2>
+								<p>この関数は、入力画像に非線形マッピングを適用して、出力画像にグレースケール値の均一な分布を作成します。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・mask</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 指定すると、マスクによって選択されたピクセルのみが分析に含まれます。</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+        mask = None
+
+        image = ImageOps.equalize(image,mask=mask)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_equalize.jpg" width="" alt="equalize()" title="equalize()"></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="expand"><b>expand()&emsp;-&emsp;枠線の追加</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・border</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 枠線の幅(ピクセル単位)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・fill</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 枠線の色(RGB値のタプル)</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+        border = 1
+        fill = (0,0,0)
+
+        image = ImageOps.expand(image, border=border, fill=fill)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_expand.jpg" width="" alt="" title=""></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="fit"><b>fit()&emsp;-&emsp;サイズ変更</b></h2>
+								<p>要求されたアスペクト比とサイズに切り取られた、サイズ変更された画像を返します。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・size</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 画像の出力サイズ((幅,高さ)のタプル)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・method</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 使用するリサンプリング方法(デフォルトではPIL.Image.NEAREST)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・bleed</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 画像の外側にある境界線を削除するための値(小数点のパーセント)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・centering</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - クロッピング位置を制御します。中央の切り抜きには(0.5,0.5)を使用します。</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+        size = (300,300)
+        method = Image.NEAREST
+        bleed = 0.0
+        centering = (0.5, 0.5)
+
+        image = ImageOps.fit(image,size=size,method=method,bleed=bleed,centering=centering)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_fit.jpg" width="" alt="fit()" title="fit()"></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="flip"><b>flip()&emsp;-&emsp;上下反転</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+
+        image = ImageOps.flip(image)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_flip.jpg" width="" alt="flip()" title="flip()"></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="grayscale"><b>grayscale()&emsp;-&emsp;グレースケール化</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+
+        image = ImageOps.grayscale(image)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_grayscale.jpg" width="" alt="grayscale()" title="grayscale()"></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="invert"><b>invert()&emsp;-&emsp;ネガポジ反転</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+
+        image = ImageOps.invert(image)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_invert.jpg" width="" alt="invert()" title="invert()"></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="mirror"><b>mirror()&emsp;-&emsp;左右反転</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+
+        image = ImageOps.mirror(image)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_mirror.jpg" width="" alt="mirror()" title="mirror()"></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="posterize"><b>posterize()&emsp;-&emsp;カラーチャンネルの削減</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・bits</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 各チャンネルに保持するビット数(1〜8)</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+        bits = 2
+
+        image = ImageOps.posterize(image,bits=bits)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_posterize.jpg" width="" alt="posterize()" title="posterize()"></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="solarize"><b>solarize()&emsp;-&emsp;ネガポジ反転(閾値有)</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・image</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 処理対象となる画像</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・threshold</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - ネガポジ反転させる基準となる閾値</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageOps
+
+    if __name__ == "__main__":
+        image = Image.open("image.jpg")
+        threshold = 128
+
+        image = ImageOps.solarize(image,threshold=threshold)
+        image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/ImageOps_solarize.jpg" width="" alt="" title=""></td>
+										</tr>
+									</table><br>
+								</div>
+								<div style="margin-bottom:60px;"></div>
+              </div>
+						</article>
+					</section>
+				</article>
+			</section>
+		</section>
+
+		<aside id="sidebar">
+			<section>
+				<iframe class="iframe_footer" src="../iframe_footer.html"></iframe>
+			</section>
+		</aside>
+
+		<br><p id="copyright">Copyright(c) 2016 ホームページサンプル株式会社 All Rights Reserved. Design by <a href="http://f-tpl.com" target="_blank" rel="nofollow">http://f-tpl.com</a></p><!-- ←クレジット表記を外す場合はシリアルキーが必要です http://f-tpl.com/credit/ -->
+	</div>
+
+</body>
+</html>

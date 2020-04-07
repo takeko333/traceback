@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=yes, maximum-scale=1.0, minimum-scale=1.0">
+	<meta name="description" content="" />
+	<meta name="keywords" content="Python,プログラミング,画像処理,Pillow,PIL,ImageFilter,フィルタリング" />
+	<meta property="og:url" content="http://traceback.html.xdomain.jp/article/PIL_ImageFilter.html" />
+	<meta property="og:image" content="http://traceback.html.xdomain.jp/images/imgMain.jpg" />
+	<meta property="og:type" content="article" />
+	<title>[Python] ImageFilterモジュールによる画像のフィルタリング | Traceback</title>
+	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<link rel="stylesheet" type="text/css" media="all" href="../style.css">
+	<link href="../prettify.css" type="text/css" rel="stylesheet">
+	<style type="text/css">
+	</style>
+	<!--[if lt IE 9]>
+	<script src="js/html5.js"></script>
+	<script src="js/css3-mediaqueries.js"></script>
+	<![endif]-->
+	<script type="text/javascript" src="../js/prettify.js"></script>
+	<script src="../js/jquery1.4.4.min.js"></script>
+	<script src="../js/script.js"></script>
+</head>
+
+<body onload="prettyPrint()">
+
+	<nav id="mainNav">
+		<div class="inner">
+			<div style="margin:2px;padding:10px;background-color:#444;border:1px solid black;">
+				<a href="../index.html"><font color="#FFF" style="margin-left:2%;font-size:35px;">Traceback</font></a>
+			</div>
+		</div>
+	</nav>
+
+	<div id="wrapper">
+		<section id="main">
+			<a href="../index.html" style="margin-left:3%;">HOME</a> &raquo; 画像処理<br>
+			<section id="post-250" class="content">
+				<article class="post">
+					<section class="content">
+						<b style="margin-left:3%;font-size:20px;">ImageFilterモジュールによる画像のフィルタリング</b>
+						<article class="post">
+              <div style="margin-left:3%;margin-right:3%;">
+								<p>Pillowには<b style="color:red;">ImageFilter</b>というモジュールが存在し、いくつかのフィルタが用意されています。</p>
+								<p><b style="color:red;">ImageFilter</b>モジュールで利用可能なフィルタの候補を以下に示します。</p><br>
+								<div align="center">
+									<table style="table-layout:fixed;border:2px solid #6091d3;" width="80%">
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#BLUR">・BLUR</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#GaussianBlur">・GaussianBlur()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#CONTOUR">・CONTOUR</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#UnsharpMask">・UnsharpMask()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#DETAIL">・DETAIL</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#Kernel">・Kernel()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#EDGE_ENHANCE">・EDGE_ENHANCE</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#RankFilter">・RankFilter()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#EDGE_ENHANCE_MORE">・EDGE_ENHANCE_MORE</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#MedianFilter">・MedianFilter()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#EMBOSS">・EMBOSS</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#MinFilter">・MinFilter()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#FIND_EDGES">・FIND_EDGES</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#MaxFilter">・MaxFilter()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#SHARPEN">・SHARPEN</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#ModeFilter">・ModeFilter()</a></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#SMOOTH">・SMOOTH</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b></b></td>
+										</tr>
+										<tr>
+	          					<td style="background-color:transparent;padding:5px;border-style:none;"><b>&emsp;<a href="#SMOOTH_MORE">・SMOOTH_MORE</a></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b></b></td>
+										</tr>
+	          			</table>
+								</div><br><br>
+								<p>これらは<b style="color:red;">Image.filter関数</b>と一緒に用いることで対象画像にフィルタをかけることができます。</p>
+								<p>それぞれのフィルタについての実装例を以下に示します。</p>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="BLUR"><b>BLUR&emsp;-&emsp;ぼかし加工</b></h2>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.BLUR)
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_BLUR.jpg" width="" alt="BLUR" title="BLUR"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="CONTOUR"><b>CONTOUR&emsp;-&emsp;輪郭抽出</b></h2>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.CONTOUR)
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_CONTOUR.jpg" width="" alt="CONTOUR" title="CONTOUR"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="DETAIL"><b>DETAIL&emsp;-&emsp;鮮鋭化</b></h2>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.DETAIL)
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_DETAIL.jpg" width="" alt="DETAIL" title="DETAIL"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="EDGE_ENHANCE"><b>EDGE_ENHANCE&emsp;-&emsp;鮮鋭化</b></h2>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.EDGE_ENHANCE)
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_EDGE_ENHANCE.jpg" width="" alt="EDGE_ENHANCE" title="EDGE_ENHANCE"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="EDGE_ENHANCE_MORE"><b>EDGE_ENHANCE_MORE&emsp;-&emsp;鮮鋭化</b></h2>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.EDGE_ENHANCE_MORE)
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_EDGE_ENHANCE_MORE.jpg" width="" alt="EDGE_ENHANCE_MORE" title="EDGE_ENHANCE_MORE"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="EMBOSS"><b>EMBOSS&emsp;-&emsp;エンボス加工</b></h2>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.EMBOSS)
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_EMBOSS.jpg" width="" alt="EMBOSS" title="EMBOSS"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="FIND_EDGES"><b>FIND_EDGES&emsp;-&emsp;輪郭抽出</b></h2>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.FIND_EDGES)
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_FIND_EDGES.jpg" width="" alt="FIND_EDGES" title="FIND_EDGES"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="SHARPEN"><b>SHARPEN&emsp;-&emsp;鮮鋭化</b></h2>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.SHARPEN)
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_SHARPEN.jpg" width="" alt="SHARPEN" title="SHARPEN"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="SMOOTH"><b>SMOOTH&emsp;-&emsp;平滑化</b></h2>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.SMOOTH)
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_SMOOTH.jpg" width="" alt="SMOOTH" title="SMOOTH"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="SMOOTH_MORE"><b>SMOOTH_MORE&emsp;-&emsp;平滑化</b></h2>
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.SMOOTH_MORE)
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_SMOOTH_MORE.jpg" width="" alt="SMOOTH_MORE" title="SMOOTH_MORE"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="GaussianBlur"><b>GaussianBlur(radius)&emsp;-&emsp;ガウシアンぼかし加工</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・radius</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - ぼかすピクセル範囲</td>
+										</tr>
+									</table>
+								</div><br clear="all">
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    radius = 2
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.GaussianBlur(radius=radius))
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(radius=2)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_GaussianBlur_radius_2.jpg" width="" alt="GaussianBlur_radius_2" title="GaussianBlur_radius_2"></td>
+	          				</tr>
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(radius=5)</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(radius=10)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_GaussianBlur_radius_5.jpg" width="" alt="GaussianBlur_radius_5" title="GaussianBlur_radius_5"></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_GaussianBlur_radius_10.jpg" width="" alt="GaussianBlur_radius_10" title="GaussianBlur_radius_10"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="UnsharpMask"><b>UnsharpMask(radius,percent,threshold)&emsp;-&emsp;アンシャープマスク処理</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・radius</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - ぼかすピクセル範囲</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・percent</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - アンシャープマスク処理の強度(パーセント単位)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・threshold</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 鮮鋭化される最小の照度の変化を制御する閾値</td>
+										</tr>
+									</table>
+								</div><br clear="all">
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    radius = 2
+    percent = 150
+    threshold = 3
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.UnsharpMask(radius=radius,percent=percent,threshold=threshold))
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(radius=2)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_UnsharpMask_radius_2.jpg" width="" alt="UnsharpMask_radius_2" title="UnsharpMask_radius_2"></td>
+	          				</tr>
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(radius=5)</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(radius=10)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_UnsharpMask_radius_5.jpg" width="" alt="UnsharpMask_radius_5" title="UnsharpMask_radius_5"></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_UnsharpMask_radius_10.jpg" width="" alt="UnsharpMask_radius_10" title="UnsharpMask_radius_10"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="Kernel"><b>Kernel(size,kernel,scale,offset)&emsp;-&emsp;畳み込み演算</b></h2>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・size</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - カーネルサイズ((width,height)の形で与えられる)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・kernel</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - カーネルの重みを保持する配列</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・scale</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 与えられた場合は、各ピクセルの値をこの値で割ります。<br>&nbsp;&nbsp;デフォルトは、カーネルの重みの合計となっています。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・offset</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 与えられた場合は、各ピクセルの値にこの値を足します。<br>&nbsp;&nbsp;その後にscaleの値での除算を行います。</td>
+										</tr>
+									</table>
+								</div><br clear="all">
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    size = (3,3)
+    kernel = [0,-1,0,-1,5,-1,0,-1,0]
+    scale = None
+    offset = 0
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.Kernel(size=size,kernel=kernel,scale=scale,offset=offset))
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(デフォルト)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_Kernel.jpg" width="" alt="Kernel" title="Kernel"></td>
+	          				</tr>
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(scale=1.2)</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(offset=20)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_Kernel_scale_1.2.jpg" width="" alt="Kernel_scale_1.2" title="Kernel_scale_1.2"></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_Kernel_offset_20.jpg" width="" alt="Kernel_offset_20" title="Kernel_offset_20"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="RankFilter"><b>RankFilter(size,rank)&emsp;-&emsp;ランクフィルタ</b></h2>
+								<p><b>ランクフィルタ</b>は、指定されたカーネルサイズ内のすべてのピクセルをソートし、ランクの値を返します。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・size</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - カーネルサイズ(ピクセル単位)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b></b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・rank</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 選択するピクセルの値(最小値フィルタには0、メディアンフィルタにはsize*size/2、<br>&nbsp;&nbsp;最大値フィルタにはsize*size-1を使用します。)</td>
+										</tr>
+									</table>
+								</div><br clear="all">
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    size = 3
+    rank = int(size * size / 2)
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.RankFilter(size=size,rank=rank))
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(rank = 0)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_RankFilter_a.jpg" width="" alt="RankFilter_a" title="RankFilter_a"></td>
+	          				</tr>
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(rank = size * size / 2)</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(rank = size * size - 1)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_RankFilter_b.jpg" width="" alt="RankFilter_b" title="RankFilter_b"></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_RankFilter_c.jpg" width="" alt="RankFilter_c" title="RankFilter_c"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="MedianFilter"><b>MedianFilter(size)&emsp;-&emsp;メディアンフィルタ</b></h2>
+								<p><b>メディアンフィルタ</b>は、指定されたカーネルサイズ内のピクセル値の中央値を選択します。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・size</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - カーネルサイズ(ピクセル単位)</td>
+										</tr>
+									</table>
+								</div><br clear="all">
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    size = 3
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.MedianFilter(size=size))
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=3)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_MedianFilter_size_3.jpg" width="" alt="MedianFilter_size_3" title="MedianFilter_size_3"></td>
+	          				</tr>
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=5)</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=9)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_MedianFilter_size_5.jpg" width="" alt="MedianFilter_size_5" title="MedianFilter_size_5"></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_MedianFilter_size_9.jpg" width="" alt="MedianFilter_size_9" title="MedianFilter_size_9"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="MinFilter"><b>MinFilter(size)&emsp;-&emsp;最小値フィルタ</b></h2>
+								<p><b>最小値フィルタ</b>は、指定されたカーネルサイズ内のピクセル値の最小値を選択します。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・size</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - カーネルサイズ(ピクセル単位)</td>
+										</tr>
+									</table>
+								</div><br clear="all">
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    size = 3
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.MinFilter(size=size))
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=3)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_MinFilter_size_3.jpg" width="" alt="MinFilter_size_3" title="MinFilter_size_3"></td>
+	          				</tr>
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=5)</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=9)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_MinFilter_size_5.jpg" width="" alt="MinFilter_size_5" title="MinFilter_size_5"></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_MinFilter_size_9.jpg" width="" alt="MinFilter_size_9" title="MinFilter_size_9"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="MaxFilter"><b>MaxFilter(size)&emsp;-&emsp;最大値フィルタ</b></h2>
+								<p><b>最大値フィルタ</b>は、指定されたカーネルサイズ内のピクセル値の中央値を選択します。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・size</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - カーネルサイズ(ピクセル単位)</td>
+										</tr>
+									</table>
+								</div><br clear="all">
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    size = 3
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.MaxFilter(size=size))
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=3)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_MaxFilter_size_3.jpg" width="" alt="MaxFilter_size_3" title="MaxFilter_size_3"></td>
+	          				</tr>
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=5)</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=9)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_MaxFilter_size_5.jpg" width="" alt="MaxFilter_size_5" title="MaxFilter_size_5"></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_MaxFilter_size_9.jpg" width="" alt="MaxFilter_size_9" title="MaxFilter_size_9"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="ModeFilter"><b>ModeFilter(size)&emsp;-&emsp;モードフィルタ</b></h2>
+								<p><b>モードフィルタ</b>は、指定したサイズのボックスで最も頻繁に使用されるピクセル値を選択します。</p>
+								<p><b>※</b>1回または2回だけ発生するピクセル値は無視されます。ピクセル値が2回以上出現しなければ、元のピクセル値は保存されます。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>パラメータ：</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>・size</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - カーネルサイズ(ピクセル単位)</td>
+										</tr>
+									</table>
+								</div><br clear="all">
+								<pre><code class="prettyprint linenums">    from PIL import Image,ImageFilter
+
+    size = 5
+
+    image = Image.open("image.jpg")
+    image = image.filter(ImageFilter.ModeFilter(size=size))
+    image.show()</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<div align="center">
+									<table border="1" cellspacing="0">
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理前</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=5)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/Lenna.jpg" width="" alt="" title=""></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_ModeFilter_size_5.jpg" width="" alt="ModeFilter_size_5" title="ModeFilter_size_5"></td>
+	          				</tr>
+										<tr>
+	          					<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=10)</td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;">処理後(size=20)</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_ModeFilter_size_10.jpg" width="" alt="ModeFilter_size_10" title="ModeFilter_size_10"></td>
+											<td style="background-color:transparent;border-style:none;padding:5px;text-align:center;"><img border="0" src="../images/IF_ModeFilter_size_20.jpg" width="" alt="ModeFilter_size_20" title="ModeFilter_size_20"></td>
+	          				</tr>
+	          			</table><br>
+              	</div>
+							</div>
+						</article>
+					</section>
+				</article>
+			</section>
+		</section>
+
+		<aside id="sidebar">
+			<section>
+				<iframe class="iframe_footer" src="../iframe_footer.html"></iframe>
+			</section>
+		</aside>
+
+		<br><p id="copyright">Copyright(c) 2016 ホームページサンプル株式会社 All Rights Reserved. Design by <a href="http://f-tpl.com" target="_blank" rel="nofollow">http://f-tpl.com</a></p><!-- ←クレジット表記を外す場合はシリアルキーが必要です http://f-tpl.com/credit/ -->
+	</div>
+
+</body>
+</html>

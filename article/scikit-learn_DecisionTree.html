@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=yes, maximum-scale=1.0, minimum-scale=1.0">
+	<meta name="description" content="[Python]scikit-learnを用いた決定木についての説明と実装例を記載しています。" />
+	<meta name="keywords" content="Python,プログラミング,機械学習,決定木,scikit-learn" />
+	<meta property="og:url" content="http://traceback.html.xdomain.jp/article/scikit-learn_DecisionTree.html" />
+	<meta property="og:image" content="http://traceback.html.xdomain.jp/images/imgMain.jpg" />
+	<meta property="og:type" content="article" />
+	<title>[Python] scikit-learnを用いた決定木によるクラス分類 | Traceback</title>
+	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<link rel="stylesheet" type="text/css" media="all" href="../style.css">
+	<link href="../prettify.css" type="text/css" rel="stylesheet">
+	<style type="text/css">
+	</style>
+	<!--[if lt IE 9]>
+	<script src="js/html5.js"></script>
+	<script src="js/css3-mediaqueries.js"></script>
+	<![endif]-->
+	<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+	<script type="text/javascript" src="../js/prettify.js"></script>
+	<script src="../js/jquery1.4.4.min.js"></script>
+	<script src="../js/script.js"></script>
+	<script type="text/javascript"
+	  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+	<script type="text/x-mathjax-config">
+	  MathJax.Hub.Config({
+	    TeX: { equationNumbers: { autoNumber: "AMS" }},
+	    tex2jax: {
+	      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+	      processEscapes: true
+	    },
+	    "HTML-CSS": { matchFontHeight: false },
+	    displayAlign: "left",
+	    displayIndent: "2em"
+	  });
+	</script>
+</head>
+
+<body onload="prettyPrint()">
+
+	<nav id="mainNav">
+		<div class="inner">
+			<div style="margin:2px;padding:10px;background-color:#444;border:1px solid black;">
+				<a href="../index.html"><font color="#FFF" style="margin-left:2%;font-size:35px;">Traceback</font></a>
+			</div>
+		</div>
+	</nav>
+
+	<div id="wrapper">
+		<section id="main">
+			<a href="../index.html" style="margin-left:3%;">HOME</a> &raquo; 機械学習<br>
+			<section id="post-250" class="content">
+				<article class="post">
+					<section class="content">
+						<b style="margin-left:3%;font-size:20px;">scikit-learnを用いた決定木によるクラス分類</b>
+						<article class="post">
+              <div style="margin-left:3%;margin-right:3%;">
+								<p><b style="color:red;">scikit-learn</b>は、機械学習を実現するためのオープンソースライブラリであり、これを利用することで比較的容易に機械学習を実装することが可能です。</p>
+								<p>この記事では、<b style="color:red;">scikit-learn</b>で用意されている<b style="color:red;">決定木</b>のモデルを用いて<b style="color:red;">クラス分類</b>を行う方法について説明しています。</p>
+								<div style="margin-bottom:40px;"></div>
+								<b style="margin-left:16%;font-size:18px;">目次</b>
+								<div style="margin-left:15%;margin-right:15%;border:solid 2px #6091d3;">
+									<b style="margin-left:15%;"><a href="#section01">1. クラス分類とは</a></b><br>
+									<b style="margin-left:15%;"><a href="#section02">2. 決定木とは</a></b><br>
+									<b style="margin-left:15%;"><a href="#section03">3. 実装</a></b><br>
+									<b style="margin-left:15%;"><a href="#section04">4. 参考文献</a></b><br>
+								</div><br>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="section01"><b>1. クラス分類とは</b></h2>
+								<p><b>クラス分類</b>とは、与えられたデータの属するクラスを予測する問題です。</p>
+								<p>機械学習における<b>クラス分類</b>は、モデルにベクトルデータと教師データ(正解データ)を与えることで、それぞれのクラスがどのような特徴を持っているのかを学習させます。</p>
+								<p>そうすることによって、どのクラスに属するか不明なデータが入力されても、クラスを推測することができます。</p>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="section02"><b>2. 決定木とは</b></h2>
+								<p><b>決定木</b>はルールベースの分類アルゴリズムです。</p>
+								<p>入力されたデータを設定した条件式を満たすか否かで二つのグループに分割し、分割されてできたサブグループを同じように分割するという操作を繰り返すことで、入力データをそれぞれのクラスに分類します。</p>
+								<div align="center"><img src="../images/DecisionTree.jpg" width="" alt="決定木" title="決定木"></div><br>
+								<p>データの分割を行う基準となる条件式は、学習に用いるデータの中から最も効率よく分割が可能なものが選定されます。</p>
+								<div style="margin-bottom:40px;"></div>
+								<p><b>決定木</b>の<b>メリット・デメリット</b>はそれぞれ以下に示す通りです。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;font-size:11pt;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>メリット</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 構造がシンプルで分類を行う過程がわかりやすい。<br> - 数値データやカテゴリデータなどが混在したデータセットも扱うことができる。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>デメリット</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 分類性能が学習データに依存しがちであり、汎化性能は低い。</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="section03"><b>3. 実装</b></h2>
+								<p><b>scikit-learn</b>では、構築済みの機械学習モデルやサンプルデータが用意されており、今回の実装でもこれを使用しています。使用したモデルとデータはそれぞれ以下に示す通りです。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;font-size:11pt;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>モデル</b> - </td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>DecisionTreeClassifier</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;">scikit-learnで用意されているクラス分類を行う決定木のモデルです。<br>二つ以上のクラスを分類する多クラス分類にも対応しています。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>データ</b> - </td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>load_iris</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;">scikit-learnで用意されている3種類のアヤメのデータセットです。<br>4種類の数値で構成されたデータが全部で150組用意されています。</td>
+										</tr>
+									</table>
+								</div><br clear="all">
+								<p>今回の実装では、<b>DecisionTreeClassifier</b>に<b>load_iris</b>で取得できるデータを学習させ、最後にモデルの識別能力を評価するテストを行いました。実際のプログラムは以下に示す通りです。</p>
+								<div style="margin-bottom:20px;"></div>
+								<pre><code class="prettyprint linenums">    from sklearn.datasets import load_iris
+    from sklearn.model_selection import train_test_split
+    from sklearn.tree import DecisionTreeClassifier, export_graphviz
+    from sklearn.metrics import accuracy_score
+
+    import pydotplus
+
+    if __name__ == "__main__":
+
+        iris = load_iris()    #データセットの読み込み
+
+        x = iris.data    #ベクトルデータ
+        y = iris.target    #教師データ
+
+        #データセットを学習用とテスト用に分割
+        train_x, test_x, train_y, test_y = train_test_split(x, y, train_size=0.3)
+
+        clf = DecisionTreeClassifier()    #モデルの定義
+
+        clf.fit(train_x, train_y)    #学習
+
+        prd = clf.predict(test_x)    #予測結果の出力
+
+        print("Train data:",len(train_x)," Test data:",len(test_x))    #データ数の表示
+        print("[test_y, prd] ->")
+        for i,j in zip(test_y, prd):
+            judge = "o" if i==j else "x"
+            print("    [{0},{1}] - {2}".format(i,j,judge))
+        print("Accuracy:",accuracy_score(test_y,prd))    #正答率の算出
+
+        #決定木モデルの可視化
+        dot_data = export_graphviz(clf,out_file=None,
+                                             feature_names=iris.feature_names,class_names=iris.target_names)
+        graph = pydotplus.graph_from_dot_data(dot_data)
+        graph.write_png("graph.png")</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<pre style="background:black;color:white;"><code>
+    Train data: 45  Test data: 105
+    [test_y, prd] ->
+        [0,0] - o
+        [2,1] - x
+        [2,2] - o
+        ...省略...
+        [0,0] - o
+        [1,1] - o
+        [0,0] - o
+    Accuracy: 0.9428571428571428
+								</code></pre><br>
+								<p>モデルの性能評価には<b>正答率(Accuracy)</b>を使用しました。<b>正答率</b>とは、全テストデータの予測結果の内、正しいクラスを予測できたものの割合のことです。</p>
+								<p>上記の出力結果にもあるように、今回構築したニューラルネットワークのモデルによるテストの<b>正答率</b>が9割以上という結果になったことから、適切に学習を行うことができたとわかります。</p>
+								<div style="margin-bottom:40px;"></div>
+								<p>scikit-learnで用意されている決定木モデルは、<u style="background-color:yellow;">構造を可視化することも可能です。</u></p>
+								<p><b>export_graphviz関数</b>を用いることで決定木モデルの構造情報を<b>dot形式</b>で出力することができます。また、そのデータを<b>pydotplus</b>の<b>graph_from_dot_data関数</b>を用いて画像データに変換することも可能です。</p>
+								<p>以下に今回作成した決定木モデルを可視化したものを示します。</p><br>
+								<div align="center"><img src="../images/Graphviz_DecisionTree.jpg"></div><br>
+								<p>このように、決定木は構造が非常にシンプルで分類の過程を理解するのが容易です。そのため、クラス分類を行う上でどの要素が重要なのかを分析しやすいというメリットがあります。</p>
+								<p>ただクラス分類を行うだけでなく、どの要素が重要なのかを知りたい場合には決定木を利用するのがよいでしょう。</p>
+								<div style="margin-bottom:60px;"></div>
+								<p>今回使用した<b>DecisionTreeClassifier</b>の<b>パラメータ</b>は以下に示す通りです。</p>
+								<div align="center">
+									<table style="table-layout:fixed;font-size:11pt;">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・criterion : string</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 'gini'</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・splitter : string</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 'best'</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・max_depth : int or None</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default None</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・min_samples_split : int, float</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 2</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・min_samples_leaf : int, float</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 1</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・min_weight_fraction_leaf : float</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 0.</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・max_features : int, float, string or None</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default None</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・random_state : int, RandomState instance or None</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default None</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・max_leaf_nodes : int or None</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default None</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・min_impurity_decrease : float</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 0.</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・min_impurity_split : float</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 1e-7</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・class_weight : dict, list of dicts, 'balanced' or None</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default None</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・presort : bool</b>
+												<br>&emsp;
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default False</b></td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<p>今回使用した<b>DecisionTreeClassifier</b>の<b>属性</b>は以下に示す通りです。</p>
+								<div align="center">
+									<table style="table-layout:fixed;font-size:11pt;">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・classes_ : array or list of array of shape (n_classes,)</b>
+												<br>&emsp;</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・feature_importances_ : array of shape = [n_features]</b>
+												<br>&emsp;</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・max_features_ : int</b>
+												<br>&emsp;</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・n_classes_ : int or list</b>
+												<br>&emsp;</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・n_features_ : int</b>
+												<br>&emsp;</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・n_outputs_ : int</b>
+												<br>&emsp;</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・tree_ : Tree object</b>
+												<br>&emsp;</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<h2 id="section04"><b>4. 参考文献</b></h2><br>
+								<table cellpadding="0" cellspacing="0" border="0" style=" border:1px solid #CCC; width:95%;">
+									<tr style="border-style:none;">
+										<td style="vertical-align:top; border-style:none; padding:10px; width:108px; background-color:#FFF;">
+											<a href="https://rpx.a8.net/svt/ejp?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00q0724.2bo11c45.g00q0724.2bo12179%2Fa18091413912_2ZPMTV_25EDF6_2HOM_BWGDT%3Fpc%3Dhttp%253A%252F%252Fitem.rakuten.co.jp%252Fbook%252F14548156%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Fbook%252Fi%252F18266282%252F" target="_blank" rel="nofollow">
+												<img border="0" alt="" src="http://thumbnail.image.rakuten.co.jp/@0_mall/book/cabinet/9634/9784274219634.jpg?_ex=128x128" />
+											</a>
+										</td>
+										<td style="font-size:12px; vertical-align:middle; border-style:none; padding:10px; background-color:#FFF;">
+											<p style="padding:0; margin:0;">
+												<a href="https://rpx.a8.net/svt/ejp?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00q0724.2bo11c45.g00q0724.2bo12179%2Fa18091413912_2ZPMTV_25EDF6_2HOM_BWGDT%3Fpc%3Dhttp%253A%252F%252Fitem.rakuten.co.jp%252Fbook%252F14548156%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Fbook%252Fi%252F18266282%252F" target="_blank" rel="nofollow" style="font-size:18px;">
+													<b>Pythonによる機械学習入門 [ 株式会社システム計画研究所 ]</b>
+												</a>
+											</p><br>
+											<p>scikit-learnを用いたサンプルプログラムが数多く記載されており、scikit-learnの使い方を理解するのに役立ちます。</p>
+											<p>matplotlibを用いて解析結果をグラフにプロットする方法なども記載されているので<u style="background-color:yellow;"><b>機械学習を実際に使ってみたいという方にはこの本をオススメします。</b></u></p>
+										</td>
+									</tr>
+								</table>
+								<img border="0" width="1" height="1" src="https://www14.a8.net/0.gif?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT" alt="">
+								<table cellpadding="0" cellspacing="0" border="0" style=" border:1px solid #CCC; width:95%;">
+									<tr style="border-style:none;">
+										<td style="vertical-align:top; border-style:none; padding:10px; width:108px; background-color:#FFF;">
+											<a href="https://rpx.a8.net/svt/ejp?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00q0724.2bo11c45.g00q0724.2bo12179%2Fa18091413912_2ZPMTV_25EDF6_2HOM_BWGDT%3Fpc%3Dhttp%253A%252F%252Fitem.rakuten.co.jp%252Fbook%252F14521280%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Fbook%252Fi%252F18243645%252F" target="_blank" rel="nofollow">
+												<img border="0" alt="" src="http://thumbnail.image.rakuten.co.jp/@0_mall/book/cabinet/5600/9784798145600.jpg?_ex=128x128" />
+											</a>
+										</td>
+										<td style="font-size:12px; vertical-align:middle; border-style:none; padding:10px; background-color:#FFF;">
+											<p style="padding:0; margin:0;">
+												<a href="https://rpx.a8.net/svt/ejp?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00q0724.2bo11c45.g00q0724.2bo12179%2Fa18091413912_2ZPMTV_25EDF6_2HOM_BWGDT%3Fpc%3Dhttp%253A%252F%252Fitem.rakuten.co.jp%252Fbook%252F14521280%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Fbook%252Fi%252F18243645%252F" target="_blank" rel="nofollow" style="font-size:18px;">
+													<b>あたらしい人工知能の教科書 プロダクト／サービス開発に必要な基礎知識 [ 多田 智史 ]</b>
+												</a>
+											</p><br>
+											<p>機械学習の各手法についての説明が数多く記載されており、機械学習の仕組みを理解するのに役立ちます。</p>
+											<p>機械学習の基礎的な部分から応用までイラストを交えるなどして詳しく説明しているので<u style="background-color:yellow;"><b>機械学習の理論を学びたいという方にはこの本をオススメします。</b></u></p>
+										</td>
+									</tr>
+								</table>
+								<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT" alt="">
+								<div style="margin-bottom:20px;"></div>
+								<div align="center">
+									<a href="https://px.a8.net/svt/ejp?a8mat=2ZPMTY+CKHGJ6+3JWG+65U41" target="_blank" rel="nofollow"><img border="0" width="340" height="178" alt="" src="https://www29.a8.net/svt/bgt?aid=180914902760&wid=001&eno=01&mid=s00000016576001035000&mc=1"></a><img border="0" width="1" height="1" src="https://www10.a8.net/0.gif?a8mat=2ZPMTY+CKHGJ6+3JWG+65U41" alt="">
+									<a href="https://px.a8.net/svt/ejp?a8mat=2ZPMTY+CKHGJ6+3JWG+65ME9" target="_blank" rel="nofollow"><img border="0" width="340" height="178" alt="" src="https://www29.a8.net/svt/bgt?aid=180914902760&wid=001&eno=01&mid=s00000016576001034000&mc=1"></a><img border="0" width="1" height="1" src="https://www16.a8.net/0.gif?a8mat=2ZPMTY+CKHGJ6+3JWG+65ME9" alt="">
+								</div>
+								<div style="margin-bottom:60px;"></div>
+							</div>
+						</article>
+					</section>
+				</article>
+			</section>
+		</section>
+
+		<aside id="sidebar">
+			<section>
+				<iframe class="iframe_footer" src="../iframe_footer.html"></iframe>
+			</section>
+		</aside>
+
+		<br><p id="copyright">Copyright(c) 2016 ホームページサンプル株式会社 All Rights Reserved. Design by <a href="http://f-tpl.com" target="_blank" rel="nofollow">http://f-tpl.com</a></p><!-- ←クレジット表記を外す場合はシリアルキーが必要です http://f-tpl.com/credit/ -->
+	</div>
+
+</body>
+</html>

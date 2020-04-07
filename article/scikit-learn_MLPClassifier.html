@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=yes, maximum-scale=1.0, minimum-scale=1.0">
+	<meta name="description" content="[Python]scikit-learnを用いたニューラルネットワークについての説明と実装例を記載しています。" />
+	<meta name="keywords" content="Python,プログラミング,機械学習,ニューラルネットワーク,scikit-learn" />
+	<meta property="og:url" content="http://traceback.html.xdomain.jp/article/scikit-learn_MLPClassifier.html" />
+	<meta property="og:image" content="http://traceback.html.xdomain.jp/images/imgMain.jpg" />
+	<meta property="og:type" content="article" />
+	<title>[Python] scikit-learnを用いたニューラルネットワークによるクラス分類 | Traceback</title>
+	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<link rel="stylesheet" type="text/css" media="all" href="../style.css">
+	<link href="../prettify.css" type="text/css" rel="stylesheet">
+	<style type="text/css">
+	</style>
+	<!--[if lt IE 9]>
+	<script src="js/html5.js"></script>
+	<script src="js/css3-mediaqueries.js"></script>
+	<![endif]-->
+	<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+	<script type="text/javascript" src="../js/prettify.js"></script>
+	<script src="../js/jquery1.4.4.min.js"></script>
+	<script src="../js/script.js"></script>
+	<script type="text/javascript"
+	  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+	<script type="text/x-mathjax-config">
+	  MathJax.Hub.Config({
+	    TeX: { equationNumbers: { autoNumber: "AMS" }},
+	    tex2jax: {
+	      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+	      processEscapes: true
+	    },
+	    "HTML-CSS": { matchFontHeight: false },
+	    displayAlign: "left",
+	    displayIndent: "2em"
+	  });
+	</script>
+</head>
+
+<body onload="prettyPrint()">
+
+	<nav id="mainNav">
+		<div class="inner">
+			<div style="margin:2px;padding:10px;background-color:#444;border:1px solid black;">
+				<a href="../index.html"><font color="#FFF" style="margin-left:2%;font-size:35px;">Traceback</font></a>
+			</div>
+		</div>
+	</nav>
+
+	<div id="wrapper">
+		<section id="main">
+			<a href="../index.html" style="margin-left:3%;">HOME</a> &raquo; 機械学習<br>
+			<section id="post-250" class="content">
+				<article class="post">
+					<section class="content">
+						<b style="margin-left:3%;font-size:20px;">scikit-learnを用いたニューラルネットワークによるクラス分類</b>
+						<article class="post">
+              <div style="margin-left:3%;margin-right:3%;">
+								<p><b style="color:red;">scikit-learn</b>は、機械学習を実現するためのオープンソースライブラリであり、これを利用することで比較的容易に機械学習を実装することが可能です。</p>
+								<p>この記事では、<b style="color:red;">scikit-learn</b>で用意されている<b style="color:red;">ニューラルネットワーク</b>のモデルを用いて<b style="color:red;">クラス分類</b>を行う方法について説明しています。</p>
+								<div style="margin-bottom:40px;"></div>
+								<b style="margin-left:16%;font-size:18px;">目次</b>
+								<div style="margin-left:15%;margin-right:15%;border:solid 2px #6091d3;">
+									<b style="margin-left:15%;"><a href="#section01">1. クラス分類とは</a></b><br>
+									<b style="margin-left:15%;"><a href="#section02">2. ニューラルネットワークとは</a></b><br>
+									<b style="margin-left:15%;"><a href="#section03">3. 実装</a></b><br>
+									<b style="margin-left:15%;"><a href="#section04">4. 参考文献</a></b><br>
+								</div><br>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="section01"><b>1. クラス分類とは</b></h2>
+								<p><b>クラス分類</b>とは、与えられたデータの属するクラスを予測する問題です。</p>
+								<p>機械学習における<b>クラス分類</b>は、モデルにベクトルデータと教師データ(正解データ)を与えることで、それぞれのクラスがどのような特徴を持っているのかを学習させます。</p>
+								<p>そうすることによって、どのクラスに属するか不明なデータが入力されても、クラスを推測することができます。</p>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="section02"><b>2. ニューラルネットワークとは</b></h2>
+								<p><b>ニューラルネットワーク</b>は機械学習の代表的な手法の一つです。</p>
+								<p>生物の神経細胞をモデル化したアルゴリズムであり、前の層から伝播されたデータを基に計算を行い、その結果を次の層へ伝播するという操作を入力層から出力層まで繰り返すことで高度な計算を可能とします。</p>
+								<div align="center"><img src="../images/NeuralNetwork.jpg" width="" alt="ニューラルネットワーク" title="ニューラルネットワーク"></div><br>
+								<p>各ニューロンの間にはそれぞれ重みが設定されており、その値の大小によってどのデータを重視して計算を行うかが決まります。<b>ニューラルネットワーク</b>に対象のデータを学習させることで、この重みの値を変化させ、入力データの特定のパターンを識別する能力を与えることができます。</p>
+								<div style="margin-bottom:40px;"></div>
+								<p><b>ニューラルネットワーク</b>の<b>メリット・デメリット</b>はそれぞれ以下に示す通りです。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;font-size:11pt;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>メリット</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 層やニューロンの数を増やすなどモデルの拡張がしやすい。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>デメリット</b></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"> - 中身がブラックボックス化しやすく、なぜその結果が得られるのかがわかりにくい。</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="section03"><b>3. 実装</b></h2>
+								<p><b>scikit-learn</b>では、構築済みの機械学習モデルやサンプルデータが用意されており、今回の実装でもこれを使用しています。使用したモデルとデータはそれぞれ以下に示す通りです。</p>
+								<div style="margin-left:3%;">
+									<table style="table-layout:fixed;font-size:11pt;" align="left">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>モデル</b> - </td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>MLPClassifier</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;">scikit-learnで用意されているクラス分類を行うニューラルネットワークのモデルです。<br>二つ以上のクラスを分類する多クラス分類にも対応しています。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>データ</b> - </td>
+											<td style="background-color:transparent;padding:5px;border-style:none;"><b>load_digits</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-style:none;"></td>
+											<td style="background-color:transparent;padding:5px;border-style:none;">scikit-learnで用意されている10種類の数字の手書き文字のデータセットです。<br>64種類の数値で構成されたデータが全部で1797組用意されています。</td>
+										</tr>
+									</table>
+								</div><br clear="all">
+								<p>今回の実装では、<b>MLPClassifier</b>に<b>load_digits</b>で取得できるデータを学習させ、最後にモデルの識別能力を評価するテストを行いました。実際のプログラムは以下に示す通りです。</p>
+								<div style="margin-bottom:20px;"></div>
+								<pre><code class="prettyprint linenums">    from sklearn.datasets import load_digits
+    from sklearn.model_selection import train_test_split
+    from sklearn.neural_network import MLPClassifier
+    from sklearn.metrics import accuracy_score
+
+    if __name__ == "__main__":
+
+        digits = load_digits()    #データセットの読み込み
+
+        x = digits.data    #ベクトルデータ
+        y = digits.target    #教師データ
+
+        #データセットを学習用とテスト用に分割
+        train_x, test_x, train_y, test_y = train_test_split(x, y, train_size=0.7)
+
+        clf = MLPClassifier()    #モデルの定義
+
+        clf.fit(train_x, train_y)    #学習
+
+        prd = clf.predict(test_x)    #予測結果の出力
+
+        print("Train data:",len(train_x)," Test data:",len(test_x))    #データ数の表示
+        print("[test_y, prd] ->")
+        for i,j in zip(test_y, prd):
+            judge = "o" if i==j else "x"
+            print("    [{0},{1}] - {2}".format(i,j,judge))
+        print("Accuracy:",accuracy_score(test_y,prd))    #正答率の算出</code></pre><br>
+								<p>以下がプログラムの出力結果です。<b style="color:red;"> --> </b></p>
+								<pre style="background:black;color:white;"><code>
+    Train data: 1257  Test data: 540
+    [test_y, prd] ->
+        [7,7] - o
+        [5,5] - o
+        [3,3] - o
+        ...省略...
+        [7,7] - o
+        [2,3] - x
+        [6,6] - o
+    Accuracy: 0.9574074074074074
+								</code></pre><br>
+								<p>モデルの性能評価には<b>正答率(Accuracy)</b>を使用しました。<b>正答率</b>とは、全テストデータの予測結果の内、正しいクラスを予測できたものの割合のことです。</p>
+								<p>上記の出力結果にもあるように、今回構築したニューラルネットワークのモデルによるテストの<b>正答率</b>が9割以上という結果になったことから、適切に学習を行うことができたとわかります。</p>
+								<div style="margin-bottom:40px;"></div>
+								<p>ニューラルネットワークを用いるメリットの一つとして、モデルの拡張のしやすさがあると前述しました。</p>
+								<p><u style="background-color:yellow;">層やニューロンの数を変更することで、モデルの性能を向上させることができるのです。</u></p>
+								<p>以下のグラフに隠れ層のニューロンの数を増やしたときの正答率と学習時間の変遷の様子を示します。</p>
+								<div align="center"><img src="../images/TimeAndAccuracyOfNN.jpg" width="75%"></div><br>
+								<p>上のグラフはx軸が隠れ層のニューロンの数で、y軸が各モデルによるテストの正答率と学習にかかった時間を指します。ニューロンの数が増えるほど、テストの正答率も上昇する傾向があることが読み取れます。</p>
+								<p>これらのグラフからわかるように、<u style="background-color:yellow;">ニューロンの数を増やすことでモデルの性能を向上させることができるようになります。</u></p>
+								<p>しかし、ニューロンの数が多いほどよいという訳ではなく、<u style="background-color:yellow;">ニューロンの数を増やすと学習にかかる時間もその分増加してしまいます。</u>いくら正答率が高いモデルでも、学習に時間がかかり過ぎてしまうのでは、性能がよいモデルだとは言えません。</p>
+								<p>そのため、ニューロンの数などのパラメータを設定する際には、<u><b>解決したい問題に最も適した条件を探る必要があります。</b></u></p>
+								<div style="margin-bottom:40px;"></div>
+								<p>今回使用した<b>MLPClassifier</b>の<b>パラメータ</b>は以下に示す通りです。</p>
+								<div align="center">
+									<table style="table-layout:fixed;font-size:11pt;">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・hidden_layer_sizes : tuple</b>
+												<br>&emsp;隠れ層の層の数、ニューロンの数を定義します。
+												<br>&emsp;i番目の要素は、i番目の隠れ層内のニューロンの数を表しています。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default (100,)</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・activation : {'identity', 'logistic', 'tanh', 'relu'}</b>
+												<br>&emsp;隠れ層の活性化関数を定義します。
+												<br>&emsp;&emsp;・'identity'：f(x) = x
+												<br>&emsp;&emsp;・'logistic'：f(x) = 1 / (1 + exp(-x))
+												<br>&emsp;&emsp;・'tanh'：f(x) = tanh(x)
+												<br>&emsp;&emsp;・'relu'：f(x) = max(0, x)
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 'relu'</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・solver : {'lbfgs', 'sgd', 'adam'}</b>
+												<br>&emsp;重みの最適化手法を定義します。
+												<br>&emsp;&emsp;・'lbfgs'：準ニュートン法系の最適化手法
+												<br>&emsp;&emsp;・'sgd'：確率的勾配降下法による最適化手法
+												<br>&emsp;&emsp;・'adam'：確率的勾配法ベースの最適化手法
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 'adam'</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・alpha : float</b>
+												<br>&emsp;L2ペナルティ（正則化項）パラメータを定義します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 0.0001</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・batch_size : int</b>
+												<br>&emsp;確率的オプティマイザ用のミニバッチのサイズを定義します。
+												<br>&emsp;最適化手法が'lbfgs'の場合、分類器はミニバッチを使用しません。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 'auto'</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・learning_rate : {'constant', 'invscaling', 'adaptive'}</b>
+												<br>&emsp;重み更新のための学習率スケジュールを定義します。
+												<br>&emsp;&emsp;・'constant'：初期の学習率を固定で使用します。
+												<br>&emsp;&emsp;・'invscaling'：初期の学習率から徐々に下げていきます。
+												<br>&emsp;&emsp;・'adaptive'：損失関数の値によって学習率を変更します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 'constant'</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・learning_rate_init : double</b>
+												<br>&emsp;初期の学習率の値を定義します。
+												<br>&emsp;最適化手法が'sgd'または 'adam'の場合にのみ使用されます。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 0.001</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・power_t : double</b>
+												<br>&emsp;逆スケーリング学習率の指数を定義します。
+												<br>&emsp;最適化手法が'sgd'の場合にのみ使用されます。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 0.5</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・max_iter : int</b>
+												<br>&emsp;学習を行う回数の上限値を定義します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 200</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・shuffle : bool</b>
+												<br>&emsp;各学習でサンプルをシャッフルするかどうかを決定します。</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default True</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・random_state : int, RandomState instance or None</b>
+												<br>&emsp;学習データをシャッフルする際などに使われる乱数生成のための<br>&emsp;インスタンスを指定します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default None</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・tol : float</b>
+												<br>&emsp;学習で２回連続してこの値より損失関数が変動しなかった場合、<br>&emsp;学習を終了します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 1e-4</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・verbose : bool</b>
+												<br>&emsp;学習中の損失関数の値を出力するかを決定します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default False</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・warm_start : bool</b>
+												<br>&emsp;前回の学習結果を引き継ぐかどうかを決定します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default False</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・momentum : float</b>
+												<br>&emsp;勾配降下更新のための学習係数を0〜1の範囲で定義します。
+												<br>&emsp;最適化手法が'sgd'の場合にのみ使用されます。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 0.9</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・nesterovs_momentum : boolean</b>
+												<br>&emsp;勾配計算の段階でMomentumを考慮するかどうかを決定します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default True</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・early_stopping : bool</b>
+												<br>&emsp;検証スコアが向上していない場合に学習を早期停止するかどうかを<br>&emsp;決定します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default False</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・validation_fraction : float</b>
+												<br>&emsp;検証用データとして使うデータの割合を0~1の間で決定します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 0.1</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・beta_1 : float</b>
+												<br>&emsp;Adamの第一のモーメントベクトルの推定のための指数関数的な<br>&emsp;減衰率を0～1で定義します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 0.9</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・beta_2 : float</b>
+												<br>&emsp;Adamの第二のモーメントベクトルの推定のための指数関数的な<br>&emsp;減衰率を0～1で定義します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 0.999</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・epsilon : float</b>
+												<br>&emsp;Adamにおける数値安定性のための値を定義します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 1e-8</b></td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;border-right:none;">
+												<b>・n_iter_no_change : int</b>
+												<br>&emsp;スコアが改善されない場合の最大学習回数を定義します。
+											</td>
+											<td style="background-color:transparent;padding:5px;border-left:none;">&emsp;<b>default 10</b></td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<p>今回使用した<b>MLPClassifier</b>の<b>属性</b>は以下に示す通りです。</p>
+								<div align="center">
+									<table style="table-layout:fixed;font-size:11pt;" width="88.5%">
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・classes_ : array or list of array of shape (n_classes,)</b>
+												<br>&emsp;各出力のクラスラベルを返します。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・loss_ : float</b>
+												<br>&emsp;現在の損失関数の値を返します。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・coefs_ : list, length n_layers - 1</b>
+												<br>&emsp;各層における重みの値を返します。<br>&emsp;リストのi番目の要素は、レイヤiに対応する重み行列を表します。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・intercepts_ : list, length n_layers - 1</b>
+												<br>&emsp;各層におけるバイアスの値を返します。<br>&emsp;リストのi番目の要素は、層i+1に対応するバイアスベクトルを表します。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・n_iter_ : int</b>
+												<br>&emsp;実際に行われた学習の回数を返します。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・n_layers_ : int</b>
+												<br>&emsp;層の数を返します。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・n_outputs_ : int</b>
+												<br>&emsp;出力の数を返します。</td>
+										</tr>
+										<tr>
+											<td style="background-color:transparent;padding:5px;border-left:solid 10px #6091d3;">
+												<b>・out_activation_ : string</b>
+												<br>&emsp;出力関数の名前を返します。</td>
+										</tr>
+									</table>
+								</div><br clear="all"><br>
+								<div style="margin-bottom:60px;"></div>
+								<h2 id="section04"><b>4. 参考文献</b></h2><br>
+								<table cellpadding="0" cellspacing="0" border="0" style=" border:1px solid #CCC; width:95%;">
+									<tr style="border-style:none;">
+										<td style="vertical-align:top; border-style:none; padding:10px; width:108px; background-color:#FFF;">
+											<a href="https://rpx.a8.net/svt/ejp?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00q0724.2bo11c45.g00q0724.2bo12179%2Fa18091413912_2ZPMTV_25EDF6_2HOM_BWGDT%3Fpc%3Dhttp%253A%252F%252Fitem.rakuten.co.jp%252Fbook%252F14548156%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Fbook%252Fi%252F18266282%252F" target="_blank" rel="nofollow">
+												<img border="0" alt="" src="http://thumbnail.image.rakuten.co.jp/@0_mall/book/cabinet/9634/9784274219634.jpg?_ex=128x128" />
+											</a>
+										</td>
+										<td style="font-size:12px; vertical-align:middle; border-style:none; padding:10px; background-color:#FFF;">
+											<p style="padding:0; margin:0;">
+												<a href="https://rpx.a8.net/svt/ejp?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00q0724.2bo11c45.g00q0724.2bo12179%2Fa18091413912_2ZPMTV_25EDF6_2HOM_BWGDT%3Fpc%3Dhttp%253A%252F%252Fitem.rakuten.co.jp%252Fbook%252F14548156%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Fbook%252Fi%252F18266282%252F" target="_blank" rel="nofollow" style="font-size:18px;">
+													<b>Pythonによる機械学習入門 [ 株式会社システム計画研究所 ]</b>
+												</a>
+											</p><br>
+											<p>scikit-learnを用いたサンプルプログラムが数多く記載されており、scikit-learnの使い方を理解するのに役立ちます。</p>
+											<p>matplotlibを用いて解析結果をグラフにプロットする方法なども記載されているので<u style="background-color:yellow;"><b>機械学習を実際に使ってみたいという方にはこの本をオススメします。</b></u></p>
+										</td>
+									</tr>
+								</table>
+								<img border="0" width="1" height="1" src="https://www14.a8.net/0.gif?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT" alt="">
+								<table cellpadding="0" cellspacing="0" border="0" style=" border:1px solid #CCC; width:95%;">
+									<tr style="border-style:none;">
+										<td style="vertical-align:top; border-style:none; padding:10px; width:108px; background-color:#FFF;">
+											<a href="https://rpx.a8.net/svt/ejp?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00q0724.2bo11c45.g00q0724.2bo12179%2Fa18091413912_2ZPMTV_25EDF6_2HOM_BWGDT%3Fpc%3Dhttp%253A%252F%252Fitem.rakuten.co.jp%252Fbook%252F14521280%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Fbook%252Fi%252F18243645%252F" target="_blank" rel="nofollow">
+												<img border="0" alt="" src="http://thumbnail.image.rakuten.co.jp/@0_mall/book/cabinet/5600/9784798145600.jpg?_ex=128x128" />
+											</a>
+										</td>
+										<td style="font-size:12px; vertical-align:middle; border-style:none; padding:10px; background-color:#FFF;">
+											<p style="padding:0; margin:0;">
+												<a href="https://rpx.a8.net/svt/ejp?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00q0724.2bo11c45.g00q0724.2bo12179%2Fa18091413912_2ZPMTV_25EDF6_2HOM_BWGDT%3Fpc%3Dhttp%253A%252F%252Fitem.rakuten.co.jp%252Fbook%252F14521280%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Fbook%252Fi%252F18243645%252F" target="_blank" rel="nofollow" style="font-size:18px;">
+													<b>あたらしい人工知能の教科書 プロダクト／サービス開発に必要な基礎知識 [ 多田 智史 ]</b>
+												</a>
+											</p><br>
+											<p>機械学習の各手法についての説明が数多く記載されており、機械学習の仕組みを理解するのに役立ちます。</p>
+											<p>機械学習の基礎的な部分から応用までイラストを交えるなどして詳しく説明しているので<u style="background-color:yellow;"><b>機械学習の理論を学びたいという方にはこの本をオススメします。</b></u></p>
+										</td>
+									</tr>
+								</table>
+								<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=2ZPMTV+25EDF6+2HOM+BWGDT" alt="">
+								<div style="margin-bottom:20px;"></div>
+								<div align="center">
+									<a href="https://px.a8.net/svt/ejp?a8mat=2ZPMTY+CKHGJ6+3JWG+65U41" target="_blank" rel="nofollow"><img border="0" width="340" height="178" alt="" src="https://www29.a8.net/svt/bgt?aid=180914902760&wid=001&eno=01&mid=s00000016576001035000&mc=1"></a><img border="0" width="1" height="1" src="https://www10.a8.net/0.gif?a8mat=2ZPMTY+CKHGJ6+3JWG+65U41" alt="">
+									<a href="https://px.a8.net/svt/ejp?a8mat=2ZPMTY+CKHGJ6+3JWG+65ME9" target="_blank" rel="nofollow"><img border="0" width="340" height="178" alt="" src="https://www29.a8.net/svt/bgt?aid=180914902760&wid=001&eno=01&mid=s00000016576001034000&mc=1"></a><img border="0" width="1" height="1" src="https://www16.a8.net/0.gif?a8mat=2ZPMTY+CKHGJ6+3JWG+65ME9" alt="">
+								</div>
+								<div style="margin-bottom:60px;"></div>
+							</div>
+						</article>
+					</section>
+				</article>
+			</section>
+		</section>
+
+		<aside id="sidebar">
+			<section>
+				<iframe class="iframe_footer" src="../iframe_footer.html"></iframe>
+			</section>
+		</aside>
+
+		<br><p id="copyright">Copyright(c) 2016 ホームページサンプル株式会社 All Rights Reserved. Design by <a href="http://f-tpl.com" target="_blank" rel="nofollow">http://f-tpl.com</a></p><!-- ←クレジット表記を外す場合はシリアルキーが必要です http://f-tpl.com/credit/ -->
+	</div>
+
+</body>
+</html>
